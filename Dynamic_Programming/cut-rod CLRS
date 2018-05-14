@@ -1,0 +1,61 @@
+#include <iostream>
+
+using namespace std;
+
+int cutRodTopDown(int*, int, int* );
+int cutRodBottomUp(int* , int);
+int maximumOf(int, int);
+
+int main()
+{
+    int prices[] = {1,5,8,9,10,17,17,20,24,30}; //price of per inch according to index or length (assuming starting from 1)
+    int maximumPrices[(sizeof(prices)/sizeof(prices[0]))]; //memoized array for storing maximum values of a particular length
+    for (int i = 0; i < sizeof(maximumPrices)/4; i++) {
+        maximumPrices[i] = -1;      //giving -1 to all elements of memoized array initally
+    }
+    int cutLength = 10;  //test case
+
+    cout << "Maximum Price using Top-Down approach = " << cutRodTopDown(prices, cutLength-1, maximumPrices) << endl;
+
+    cout << "Printing maximumPrices Array -->" << endl;
+    for (int i = 0; i < 10; i++) {
+        cout << maximumPrices[i] << endl;
+    }
+    cout << "-------------------" << endl;
+
+    cout << "Maximum price using bottom-up fashion = "<< cutRodBottomUp(prices, cutLength) << endl;
+    return 0;
+}
+
+int cutRodTopDown(int* prices, int cutLength, int* maximumPrices) {
+    if (cutLength < 0) {return 0;} //base case
+    if (maximumPrices[cutLength] >= 0) {return maximumPrices[cutLength];} //Using MEMOIZED value
+    int maximumPrice = 0;
+
+    for (int i = 0; i <= cutLength; i++){
+        maximumPrice = maximumOf(maximumPrice, prices[i] + cutRodTopDown(prices, cutLength - i - 1, maximumPrices));
+    }
+    maximumPrices[cutLength] = maximumPrice; //Storing values in MEMOIZED array
+    return maximumPrice;
+}
+
+int cutRodBottomUp(int* prices, int cutLength) {
+    int maximumPrice = 0;
+    int maximumPrices[cutLength+1];
+    maximumPrices[0] = 0;
+
+    //Making memoized table in bottom up fashion
+    cout << "Printing memoized array from bottom up fashion-> " << endl;
+    for (int i = 1; i <= cutLength; i++) {
+        for (int j = 0; j < i; j++) {
+            maximumPrice = maximumOf(maximumPrice, prices[i-j-1] + maximumPrices[j]);
+        }
+        maximumPrices[i] = maximumPrice;
+        cout << maximumPrices[i] << endl;
+    }
+    return maximumPrices[cutLength];
+}
+
+int maximumOf(int a, int b){
+    return a>b? a:b;
+}
